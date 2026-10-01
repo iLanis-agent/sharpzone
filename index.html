@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SharpZone - Depth of field and hyperfocal distance</title>
+<meta name="description" content="See exactly what is in focus for your lens, aperture and distance, and where the hyperfocal focus point is. Runs in your browser.">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#10202a; color:#e6f1f6; line-height:1.6; }
+  .wrap { max-width:680px; margin:0 auto; padding:48px 20px 60px; }
+  .logo { font-size:46px; font-weight:800; } .logo span { color:#5cc8e8; }
+  .tag { font-size:19px; margin-top:10px; color:#cfe0e8; }
+  .cta { display:inline-block; margin-top:26px; background:#5cc8e8; color:#10202a; font-weight:700; padding:14px 30px; border-radius:12px; text-decoration:none; }
+  h2 { font-size:21px; margin:40px 0 10px; } li { color:#a9c2ce; margin-bottom:8px; } ul { margin-left:20px; }
+  .demo { margin-top:26px; background:#1a303c; border-radius:14px; padding:18px; display:flex; gap:18px; flex-wrap:wrap; } .demo div { flex:1; min-width:140px; } .demo b { display:block; font-size:30px; color:#5cc8e8; }
+  footer { margin-top:50px; font-size:13px; color:#7f9aa6; } a { color:#5cc8e8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">Sharp<span>Zone</span></div>
+  <div class="tag">Landscape or street: where do you focus so the foreground and the mountains are both sharp? Put in lens, aperture and distance, see the zone.</div>
+  <a class="cta" href="app.html">Find my sharp zone &rarr;</a>
+  <div class="demo"><div><b>10.47 m</b>hyperfocal, 50 mm f/8 full frame</div><div><b>5.2 m to inf</b>sharp when focused there</div><div><b>~6 ft 3 in</b>total DOF at 10 ft</div></div>
+  <h2>What you get</h2>
+  <ul><li>Near and far limits and total depth of field</li><li>Hyperfocal distance and the point to focus at</li><li>Full frame, APS-C and Micro Four Thirds presets</li><li>A bar showing where the sharp zone sits</li></ul>
+  <footer>Based on the standard thin-lens model; the circle of confusion is a convention. Checked against <a href="https://www.canon-europe.com/canon-club/hyperfocal-focusing/">Canon Europe</a> and <a href="https://lensandshutter.com/tools/depth-of-field-calculator/">lensandshutter.com</a>.<br>App Factory project. <a href="https://github.com/iLanis-agent/sharpzone">Code</a></footer>
+</div>
+</body>
+</html>
