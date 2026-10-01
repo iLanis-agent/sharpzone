@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SharpZone - Depth of field and hyperfocal distance</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#10202a; color:#e6f1f6; line-height:1.5; }
+  .wrap { max-width:640px; margin:0 auto; padding:26px 18px 60px; }
+  a { color:#5cc8e8; } h1 { font-size:28px; } h1 span { color:#5cc8e8; } .sub { color:#9bb6c2; margin:4px 0 18px; }
+  .card { background:#1a303c; border-radius:14px; padding:16px; margin-bottom:14px; }
+  label { display:block; font-size:13px; color:#9bb6c2; margin:10px 0 4px; }
+  input, select { width:100%; padding:11px; border-radius:9px; border:1px solid #2f4d5c; background:#10202a; color:#e6f1f6; font-size:16px; }
+  .row { display:flex; gap:10px; } .row > div { flex:1; }
+  .big { font-size:40px; font-weight:800; color:#5cc8e8; } .lbl { font-size:13px; color:#9bb6c2; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; } .grid b { display:block; font-size:20px; }
+  .bar { position:relative; height:34px; background:#10202a; border-radius:8px; margin-top:14px; overflow:hidden; } .zone { position:absolute; top:0; bottom:0; background:#2e8fad; } .pin { position:absolute; top:0; bottom:0; width:3px; background:#fff; }
+  .scale { display:flex; justify-content:space-between; font-size:12px; color:#9bb6c2; margin-top:4px; }
+  .note { font-size:14px; color:#cfe0e8; margin-top:10px; } h2 { font-size:17px; margin-bottom:8px; } .small { font-size:13px; color:#9bb6c2; }
+  .warn { background:#3d2a20; border:1px solid #b9703f; color:#ffddc4; padding:12px; border-radius:10px; margin-top:12px; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Sharp<span>Zone</span></h1>
+  <div class="sub">What is in focus, and where to focus so everything from near to far is sharp.</div>
+  <div class="card">
+    <div class="row"><div><label for="sensor">Sensor</label><select id="sensor"><option value="ff">Full frame (0.030 mm)</option><option value="apsc">APS-C Canon (0.019 mm)</option><option value="mft">Micro Four Thirds (0.015 mm)</option></select></div><div><label for="f">Focal length (mm)</label><input id="f" type="number" min="4" max="800" step="1" value="50"></div></div>
+    <div class="row"><div><label for="n">Aperture f/</label><input id="n" type="number" min="0.7" max="64" step="0.1" value="8"></div><div><label for="s">Focus distance (m)</label><input id="s" type="number" min="0.1" step="0.1" value="3"></div></div>
+  </div>
+  <div class="card" id="out"></div>
+  <div class="card"><h2>About this</h2><div class="small">Standard thin-lens model: hyperfocal H = f&sup2; / (N &times; c) + f, with near and far limits from H and the focus distance. The circle of confusion c is a convention for acceptable sharpness on a normal-size print, not a physical law; pixel peepers should use a smaller one. Checked against the <a href="https://www.canon-europe.com/canon-club/hyperfocal-focusing/">Canon Europe</a> 28 mm f/16 example (1.63 m before adding f) and the <a href="https://lensandshutter.com/tools/depth-of-field-calculator/">lensandshutter.com</a> 50 mm f/8 at 10 ft example (about 6 ft 3 in total). Real lenses focus a little differently, so leave a safety margin. <a href="index.html">About</a></div></div>
+</div>
+<script src="engine.js"></script>
+<script>
+var $ = function (i) { return document.getElementById(i); };
+function fm(mm) { if (mm === Infinity) return 'infinity'; return mm >= 1000 ? (mm / 1000).toFixed(2) + ' m' : Math.round(mm) + ' mm'; }
+function render() {
+  var c = Sharp.SENSORS[$('sensor').value].c, f = parseFloat($('f').value), N = parseFloat($('n').value), s = parseFloat($('s').value) * 1000;
+  if (!(f > 0) || !(N > 0) || !(s > 0)) { $('out').innerHTML = '<div class="lbl">Enter focal length, aperture and distance.</div>'; return; }
+  if (s <= f) { $('out').innerHTML = '<div class="warn">The focus distance must be longer than the focal length.</div>'; return; }
+  var L = Sharp.limits(f, N, c, s), h = '<div class="lbl">Sharp from</div><div class="big" id="range">' + fm(L.near) + ' to ' + fm(L.far) + '</div>';
+  h += '<div class="grid"><div><span class="lbl">Total depth of field</span><b id="total">' + fm(L.total) + '</b></div><div><span class="lbl">Hyperfocal distance</span><b id="hyper">' + fm(L.H) + '</b></div><div><span class="lbl">In front of subject</span><b>' + fm(s - L.near) + '</b></div><div><span class="lbl">Behind subject</span><b>' + (L.far === Infinity ? 'to infinity' : fm(L.far - s)) + '</b></div></div>';
+  var max = Math.min(L.H * 1.5, Math.max(s * 2, L.far === Infinity ? L.H * 1.5 : L.far * 1.1)), p = function (x) { return Math.min(100, x / max * 100); };
+  var endp = L.far === Infinity ? 100 : p(L.far);
+  h += '<div class="bar"><div class="zone" style="left:' + p(L.near).toFixed(2) + '%;width:' + (endp - p(L.near)).toFixed(2) + '%"></div><div class="pin" style="left:' + p(s).toFixed(2) + '%"></div></div><div class="scale"><span>0</span><span>' + fm(max) + '</span></div>';
+  h += '<div class="note" id="tip">To get everything sharp from ' + fm(L.H / 2) + ' to infinity, focus at ' + fm(L.H) + '.' + (s >= L.H ? ' You are already focused at or beyond that.' : '') + '</div>';
+  if (L.far !== Infinity && L.total < s * 0.02) h += '<div class="warn">Very shallow zone. Small focus errors will show.</div>';
+  $('out').innerHTML = h;
+}
+['sensor', 'f', 'n', 's'].forEach(function (i) { $(i).oninput = render; $(i).onchange = render; });
+render();
+</script>
+</body>
+</html>
